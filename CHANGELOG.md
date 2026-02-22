@@ -1,5 +1,7 @@
 # Changelog
 
+v1.3 - Synced changelog with all version entries.
+
 v1.2 - Updated changelog with all version entries.
 
 v1.1 - Simplified changelog format to simple paragraphs.
