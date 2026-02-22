@@ -43,6 +43,11 @@ current_slideshow_category = None
 slideshow_running = False
 stop_slideshow = False
 
+# Frame skipping for performance
+frame_count = 0
+PROCESS_EVERY_N_FRAMES = 3  # Process every 3rd frame
+last_result = (None, None, {category: 0 for category in student_categories})
+
 def recognize_students(frame):
     """Recognize students from the camera feed and count their categories."""
     # Convert to RGB (face_recognition uses RGB)
@@ -69,14 +74,27 @@ def recognize_students(frame):
         
         matched_category = None
         
-        # Check against each category
+        # Check against each category with confidence scoring
+        best_match = None
+        best_confidence = 0
+        
         for category in student_categories:
             if student_encodings[category]:  # Check if there are encodings for this category
-                matches = face_recognition.compare_faces(student_encodings[category], face_encoding, tolerance=0.6)
-                if True in matches:
-                    category_count[category] += 1
-                    matched_category = category
-                    break
+                # Calculate face distances (lower = better match)
+                face_distances = face_recognition.face_distance(student_encodings[category], face_encoding)
+                best_distance = min(face_distances)
+                
+                # Convert distance to confidence (0-100%)
+                confidence = max(0, (1 - best_distance) * 100)
+                
+                if best_distance < 0.6 and confidence > best_confidence:  # Threshold 0.6
+                    best_confidence = confidence
+                    best_match = category
+        
+        if best_match:
+            category_count[best_match] += 1
+            matched_category = best_match
+            match_confidence = best_confidence
         
         # Draw rectangle with color based on category
         if matched_category == "science":
@@ -87,11 +105,15 @@ def recognize_students(frame):
             color = (255, 0, 0)  # Blue for commerce
         else:
             color = (200, 200, 200)  # Gray for unknown
+            match_confidence = 0
             
         cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
         
-        # Add label
-        label = f"{matched_category.capitalize() if matched_category else 'Unknown'} #{i+1}"
+        # Add label with confidence
+        if matched_category:
+            label = f"{matched_category.capitalize()} {match_confidence:.0f}%"
+        else:
+            label = "Unknown"
         cv2.putText(frame, label, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
         
         recognized_faces.append({
@@ -191,8 +213,17 @@ def main():
                     print("Failed to grab frame")
                     break
                 
-                # Process frame
-                processed_frame, majority_category, category_count = recognize_students(frame)
+                # Frame skipping for performance - process every Nth frame
+                global frame_count, last_result
+                frame_count += 1
+                
+                if frame_count % PROCESS_EVERY_N_FRAMES == 0:
+                    # Process frame
+                    processed_frame, majority_category, category_count = recognize_students(frame)
+                    last_result = (processed_frame, majority_category, category_count)
+                else:
+                    # Reuse last result, just show current frame
+                    processed_frame, majority_category, category_count = frame, last_result[1], last_result[2]
                 
                 # Update category history for stability
                 if majority_category:

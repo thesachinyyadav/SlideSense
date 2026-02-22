@@ -1,5 +1,9 @@
 # Changelog
 
+v1.5 - Added confidence scores for face matching and frame skipping (every 3rd frame) for better performance on lightweight systems.
+
+v1.4 - Final changelog sync and versioning setup complete.
+
 v1.3 - Synced changelog with all version entries.
 
 v1.2 - Updated changelog with all version entries.

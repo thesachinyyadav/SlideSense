@@ -1,6 +1,10 @@
 # SlideSense - Face Recognition Slideshow System
 
+**Current Version: 1.0**
+
 A smart face recognition system that automatically detects students from different academic streams and displays relevant posters based on the majority audience present.
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## Overview
 
