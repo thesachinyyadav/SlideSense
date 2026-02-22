@@ -1,5 +1,7 @@
 # Changelog
 
+v1.7 - Fixed slideshow not switching when a different category person is detected. Now automatically stops old slideshow and starts correct one.
+
 v1.6 - Fixed slideshow to display actual poster images in a visual window instead of console text.
 
 v1.5 - Added confidence scores (shows match % on labels) and frame skipping (processes every 3rd frame) for better performance on lightweight systems.

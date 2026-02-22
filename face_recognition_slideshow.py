@@ -249,10 +249,16 @@ def main():
                     if category_history.count(most_common) >= 10:
                         stable_majority = most_common
                         
-                        # Start slideshow in a separate thread if category changed and no slideshow is running
-                        if stable_majority != current_slideshow_category and not slideshow_running:
+                        # Start slideshow if category changed
+                        if stable_majority != current_slideshow_category:
+                            # Stop current slideshow if running
+                            if slideshow_running:
+                                stop_slideshow = True
+                                time.sleep(0.3)  # Wait for slideshow to stop
+                            
                             current_slideshow_category = stable_majority
                             stop_slideshow = False
+                            category_history = []  # Reset history for clean detection
                             
                             print(f"\nStable majority detected: {stable_majority.upper()} students")
                             slideshow_thread = Thread(target=text_slideshow, args=(stable_majority,))
