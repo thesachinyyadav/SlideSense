@@ -141,7 +141,7 @@ def recognize_students(frame):
     return frame, majority_category, category_count
 
 def text_slideshow(category):
-    """Run a text-based slideshow in the console for the given category."""
+    """Run a visual slideshow showing poster images for the given category."""
     global stop_slideshow, slideshow_running
     
     if not category in poster_images or not poster_images[category]:
@@ -156,26 +156,37 @@ def text_slideshow(category):
         posters = poster_images[category]
         slide_index = 0
         
+        # Create slideshow window
+        cv2.namedWindow("Slideshow", cv2.WINDOW_NORMAL)
+        cv2.resizeWindow("Slideshow", 800, 600)
+        
         while not stop_slideshow:
-            # Clear console (cross-platform)
-            os.system('cls' if os.name == 'nt' else 'clear')
-            
             poster_path = posters[slide_index]
             poster_name = os.path.basename(poster_path)
             
-            print(f"\n{'=' * 50}")
-            print(f"  {category.upper()} DEPARTMENT - POSTER {slide_index + 1}/{len(posters)}")
-            print(f"  {poster_name}")
-            print(f"{'=' * 50}")
-            print(f"\nFile path: {poster_path}")
-            print("\n(Press 'q' to quit slideshow, 's' to stop recognition)")
+            # Load and display poster image
+            poster_img = cv2.imread(poster_path)
+            if poster_img is not None:
+                # Add title overlay
+                cv2.putText(poster_img, f"{category.upper()} - {slide_index + 1}/{len(posters)}", 
+                           (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(poster_img, poster_name, 
+                           (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+                
+                cv2.imshow("Slideshow", poster_img)
+            else:
+                print(f"Could not load: {poster_path}")
             
             # Move to next slide
             slide_index = (slide_index + 1) % len(posters)
             
-            # Wait for 3 seconds before showing next slide
-            time.sleep(3)
+            # Wait 3 seconds, checking for stop signal
+            for _ in range(30):
+                if stop_slideshow:
+                    break
+                cv2.waitKey(100)
         
+        cv2.destroyWindow("Slideshow")
         print("\n----- SLIDESHOW ENDED -----\n")
         slideshow_running = False
         

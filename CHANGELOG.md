@@ -1,6 +1,8 @@
 # Changelog
 
-v1.5 - Added confidence scores for face matching and frame skipping (every 3rd frame) for better performance on lightweight systems.
+v1.6 - Fixed slideshow to display actual poster images in a visual window instead of console text.
+
+v1.5 - Added confidence scores (shows match % on labels) and frame skipping (processes every 3rd frame) for better performance on lightweight systems.
 
 v1.4 - Final changelog sync and versioning setup complete.
 
